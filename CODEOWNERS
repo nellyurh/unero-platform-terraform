@@ -1,0 +1,6 @@
+# Platform substrate is Tier-1. Every path requires platform + security review.
+*                 @uneroplatform/platform-engineering
+/baseline/        @uneroplatform/platform-engineering @uneroplatform/security
+/modules/kms-key/ @uneroplatform/platform-engineering @uneroplatform/security
+/modules/task-iam-role/ @uneroplatform/platform-engineering @uneroplatform/security
+/environments/production/ @uneroplatform/platform-engineering @uneroplatform/security

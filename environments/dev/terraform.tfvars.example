@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars (gitignored) OR pass via TF_VAR_* in CI.
+# redis_auth_token is a secret — inject via CI from Secrets Manager, do not paste here.
+environment        = "dev"
+region             = "af-south-1"
+vpc_cidr           = "10.10.0.0/16"
+availability_zones = ["af-south-1a", "af-south-1b", "af-south-1c"]
+# redis_auth_token = "set via TF_VAR_redis_auth_token in CI"

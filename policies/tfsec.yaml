@@ -1,0 +1,5 @@
+# tfsec config — companion to Checkov, runs on every PR.
+minimum_severity: HIGH
+exclude:
+  # State bucket access logging is covered by the organization CloudTrail (baseline/).
+  - aws-s3-enable-bucket-logging

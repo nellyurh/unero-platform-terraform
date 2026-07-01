@@ -1,0 +1,21 @@
+# Checkov config — runs on every PR (TESTING_STRATEGY.md §7.6).
+directory:
+  - .
+framework:
+  - terraform
+# Fail the build on any HIGH/CRITICAL misconfiguration.
+soft-fail: false
+# The invariants we refuse to ship without:
+check:
+  - CKV_AWS_16   # RDS storage encrypted
+  - CKV_AWS_19   # S3 SSE enabled
+  - CKV_AWS_21   # S3 versioning enabled
+  - CKV_AWS_23   # security-group rules described
+  - CKV_AWS_26   # SNS/SQS encrypted
+  - CKV_AWS_53   # S3 block public ACLs
+  - CKV_AWS_54   # S3 block public policy
+  - CKV_AWS_58   # EKS/ECS secrets encryption (where applicable)
+  - CKV_AWS_144  # S3 cross-region replication for state (production)
+  - CKV_AWS_145  # S3 KMS encryption
+skip-check:
+  - CKV_AWS_18   # S3 access logging on the state bucket — handled by org CloudTrail instead

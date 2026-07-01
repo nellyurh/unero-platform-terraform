@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyMutatingConsoleActionsWithoutBreakGlass",
+      "Effect": "Deny",
+      "Action": [
+        "ec2:*", "rds:Delete*", "rds:Modify*", "kms:ScheduleKeyDeletion",
+        "iam:Delete*", "iam:Put*", "ecs:Delete*", "dynamodb:Delete*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotLike": { "aws:PrincipalArn": "arn:aws:iam::*:role/unero-*-terraform" },
+        "Bool": { "aws:ViaAWSService": "false" }
+      }
+    }
+  ]
+}
