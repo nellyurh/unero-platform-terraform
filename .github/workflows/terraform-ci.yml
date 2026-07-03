@@ -67,4 +67,4 @@ jobs:
           # plan evaluates every required variable; value comes from a repo secret and is
           # only compared, never provisioned, in this read-only lane
           TF_VAR_redis_auth_token: ${{ secrets.DEV_REDIS_AUTH_TOKEN }}
-        run: terraform plan -input=false -no-color
+        run: terraform plan -input=false -no-color -lock=false
