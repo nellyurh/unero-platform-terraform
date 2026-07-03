@@ -22,13 +22,13 @@ locals {
   repo_sub     = "repo:${var.github_org}/${var.github_repo}"
   environments = var.environments
 
-  # Trust claim per env: prod/staging bind to the protected GitHub Environment.
+  # Trust claim per env: every apply job runs inside its GitHub Environment (that is
+  # where the REDIS_AUTH_TOKEN secret lives), and a job attached to an environment gets
+  # sub = environment:<name>, NOT ref:refs/heads/main. So ALL apply roles trust the
+  # environment claim. Human gates remain: workflow_dispatch for every env, plus
+  # required reviewers on staging/production.
   apply_subject_claims = {
-    for env in local.environments : env => (
-      contains(["production", "staging"], env)
-      ? ["${local.repo_sub}:environment:${env}"]
-      : ["${local.repo_sub}:ref:refs/heads/main"]
-    )
+    for env in local.environments : env => ["${local.repo_sub}:environment:${env}"]
   }
 
   state_bucket_arn = "arn:aws:s3:::${var.state_bucket_name}"
