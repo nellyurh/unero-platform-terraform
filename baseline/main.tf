@@ -68,14 +68,19 @@ resource "aws_dynamodb_table" "locks" {
   tags = local.tags
 }
 
-# --- Org-wide audit trail ---
-resource "aws_cloudtrail" "org" {
-  name                          = "unero-org-trail"
-  s3_bucket_name                = aws_s3_bucket.state.id
+# --- Account-wide audit trail (single-account model, ARB 2026-07-03) ---
+# Standard (non-organization) trail: there is no AWS Organization. Logs land in a DEDICATED
+# audit bucket (audit.tf) — never the state bucket — with the CloudTrail bucket policy the
+# service requires. Multi-region so eu-west-1 (DR) activity is captured too.
+resource "aws_cloudtrail" "account" {
+  name                          = "unero-account-trail"
+  s3_bucket_name                = aws_s3_bucket.audit.id
   include_global_service_events = true
   is_multi_region_trail         = true
-  is_organization_trail         = true
   kms_key_id                    = module.kms_logs.key_arn
   enable_log_file_validation    = true
   tags                          = local.tags
+
+  # The bucket policy must exist before CloudTrail validates the destination.
+  depends_on = [aws_s3_bucket_policy.audit]
 }
