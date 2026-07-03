@@ -48,6 +48,7 @@ resource "aws_rds_cluster" "this" {
   skip_final_snapshot             = var.environment == "production" ? false : true
   final_snapshot_identifier       = var.environment == "production" ? "unero-${var.environment}-final" : null
   enabled_cloudwatch_logs_exports = ["postgresql"]
+  enable_http_endpoint            = var.enable_data_api
 
   serverlessv2_scaling_configuration {
     min_capacity = var.min_acu

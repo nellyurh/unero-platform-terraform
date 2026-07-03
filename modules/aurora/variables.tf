@@ -50,3 +50,9 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "enable_data_api" {
+  description = "Enable the RDS Data API (HTTP endpoint) for keyless SQL bootstrap (role/schema creation). Off by default."
+  type        = bool
+  default     = false
+}

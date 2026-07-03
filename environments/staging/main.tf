@@ -68,6 +68,7 @@ module "aurora" {
   max_acu                = 2
   instance_count         = 1
   deletion_protection    = false
+  enable_data_api        = true # keyless SQL bootstrap for service DB roles (Data API)
   tags                   = local.tags
 }
 
