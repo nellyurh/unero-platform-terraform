@@ -97,10 +97,10 @@ resource "aws_route_table_association" "data" {
 
 # --- VPC flow logs (Volume 10) ---
 resource "aws_flow_log" "this" {
-  log_destination      = var.flow_log_group_arn
-  traffic_type         = "ALL"
-  vpc_id               = aws_vpc.this.id
-  iam_role_arn         = var.flow_log_role_arn
+  log_destination          = var.flow_log_group_arn
+  traffic_type             = "ALL"
+  vpc_id                   = aws_vpc.this.id
+  iam_role_arn             = var.flow_log_role_arn
   max_aggregation_interval = 60
-  tags                 = var.tags
+  tags                     = var.tags
 }
