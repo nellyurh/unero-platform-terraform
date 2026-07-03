@@ -44,3 +44,7 @@ output "identity_secret_arns" {
   description = "Map of secret suffix => ARN for identity-service; referenced by the ECS task definition."
   value       = { for k, s in aws_secretsmanager_secret.identity : k => s.arn }
 }
+output "public_subnet_ids" {
+  description = "Public subnets for internet-facing load balancers (service ALBs)."
+  value       = module.vpc.public_subnet_ids
+}
