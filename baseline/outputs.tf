@@ -13,3 +13,6 @@ output "state_bucket" {
 output "state_replica_bucket" {
   value = aws_s3_bucket.state_replica.id
 }
+output "audit_bucket" {
+  value = aws_s3_bucket.audit.id
+}

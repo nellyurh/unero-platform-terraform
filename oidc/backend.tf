@@ -6,11 +6,14 @@ terraform {
       version = "~> 5.60"
     }
   }
-  # Applied once per workload account with THAT account's credentials/backend.
-  # State key is namespaced by environment; bucket is provided at init time
-  # (-backend-config) so no account-specific value is committed.
+  # First (bootstrap) apply runs with `terraform init -backend=false` because this config
+  # creates the roles CI needs and may precede the backend itself. After the backend exists,
+  # re-init WITHOUT -backend=false and approve the state migration. See docs/BOOTSTRAP.md.
   backend "s3" {
-    key     = "oidc/terraform.tfstate"
-    encrypt = true
+    bucket         = "unero-terraform-state"
+    key            = "oidc/terraform.tfstate"
+    region         = "af-south-1"
+    dynamodb_table = "unero-terraform-locks"
+    encrypt        = true
   }
 }

@@ -1,19 +1,5 @@
-variable "environment" {
-  description = "Which account this is being applied to: dev | staging | production | load-test."
-  type        = string
-  validation {
-    condition     = contains(["dev", "staging", "production", "load-test"], var.environment)
-    error_message = "environment must be one of dev, staging, production, load-test."
-  }
-}
-
-variable "region" {
-  type    = string
-  default = "af-south-1"
-}
-
 variable "github_org" {
-  description = "GitHub owner. No account IDs are committed; this is the org name only."
+  description = "GitHub owner allowed to assume the roles."
   type        = string
   default     = "nellyurh"
 }
@@ -23,30 +9,44 @@ variable "github_repo" {
   default = "unero-platform-terraform"
 }
 
+variable "environments" {
+  description = "Environments that get an apply role. Load-test included when it deploys via CI."
+  type        = list(string)
+  default     = ["dev", "staging", "production"]
+}
+
+variable "state_bucket_name" {
+  description = "Terraform state bucket name in this account."
+  type        = string
+  default     = "unero-terraform-state"
+}
+
+variable "lock_table_name" {
+  description = "DynamoDB state-lock table name in this account."
+  type        = string
+  default     = "unero-terraform-locks"
+}
+
 variable "create_oidc_provider" {
-  description = "Create the OIDC provider in this account (false if one already exists)."
+  description = "Create the GitHub OIDC provider. Set false + oidc_provider_arn if one already exists in the account."
   type        = bool
   default     = true
 }
 
-variable "state_bucket_arn" {
-  description = "ARN of the Terraform state bucket this account's roles must read/write for init+lock."
+variable "oidc_provider_arn" {
+  description = "Existing GitHub OIDC provider ARN when create_oidc_provider = false."
   type        = string
-}
-
-variable "lock_table_arn" {
-  description = "ARN of the DynamoDB state-lock table."
-  type        = string
+  default     = ""
 }
 
 variable "apply_policy_arns" {
-  description = "Managed policies for the APPLY role. Default AdministratorAccess is the sole TF automation role, gated by tight OIDC trust; swap for a scoped policy + boundary in regulated accounts."
+  description = "Managed policies for the apply roles. Default AdministratorAccess: sole TF automation identity, gated by OIDC trust + Environment approvals; scope down + add a boundary when the platform stabilizes."
   type        = list(string)
   default     = ["arn:aws:iam::aws:policy/AdministratorAccess"]
 }
 
 variable "apply_permissions_boundary_arn" {
-  description = "Optional boundary to cap the apply role (recommended in production)."
+  description = "Optional permissions boundary for the apply roles."
   type        = string
   default     = null
 }

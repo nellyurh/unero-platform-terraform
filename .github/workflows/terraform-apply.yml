@@ -1,48 +1,67 @@
 name: terraform-apply
 
-# Apply runs only on push to main (post-merge). Each environment is a GitHub Environment;
-# production/staging require reviewers (configure in repo Settings -> Environments), which
-# gates BOTH the workflow and the OIDC assume (apply role trusts environment:<env>).
+# ARB directive (2026-07-03): infrastructure is NEVER created automatically on merge.
+# Deployment is an explicit human act: Actions -> terraform-apply -> Run workflow ->
+# pick the environment. Chain: merge -> CI green -> manual dispatch dev -> validate ->
+# dispatch staging (reviewer approval) -> validate -> dispatch production (approval).
+#
+# Two gates stack per run:
+#   1. workflow_dispatch  - nothing runs without a human clicking Run workflow
+#   2. environment:       - staging/production additionally require reviewer approval,
+#                           and the OIDC trust on those apply roles only accepts tokens
+#                           minted inside that approved environment
 on:
-  push:
-    branches: [main]
-    paths: ["**.tf", ".github/workflows/terraform-apply.yml"]
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to apply"
+        type: choice
+        required: true
+        options: [dev, staging, production]
 
 permissions:
   contents: read
   id-token: write
 
 concurrency:
-  group: terraform-apply-${{ github.ref }}
+  group: terraform-apply-${{ inputs.environment }}
   cancel-in-progress: false
 
 jobs:
   apply:
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      matrix:
-        include:
-          - env: dev
-            account_secret: DEV_ACCOUNT_ID
-          - env: staging
-            account_secret: STAGING_ACCOUNT_ID
-          - env: production
-            account_secret: PRODUCTION_ACCOUNT_ID
-    environment: ${{ matrix.env }}   # approvals enforced here for staging/production
+    environment: ${{ inputs.environment }}
+    env:
+      # Required Terraform variables come from GitHub ENVIRONMENT secrets (per-env value,
+      # only exposed to a job that passed that environment's protection rules).
+      TF_VAR_redis_auth_token: ${{ secrets.REDIS_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Refuse to run without required secrets
+        run: |
+          if [ -z "$TF_VAR_redis_auth_token" ]; then
+            echo "::error::REDIS_AUTH_TOKEN is not set as an environment secret for '${{ inputs.environment }}'. Aborting before touching AWS."
+            exit 1
+          fi
+
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets[matrix.account_secret] }}:role/unero-${{ matrix.env }}-terraform
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/unero-${{ inputs.environment }}-terraform
           aws-region: af-south-1
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.7.5
+
       - name: init
-        working-directory: environments/${{ matrix.env }}
-        run: terraform init
+        working-directory: environments/${{ inputs.environment }}
+        run: terraform init -input=false
+
+      - name: plan
+        working-directory: environments/${{ inputs.environment }}
+        run: terraform plan -input=false -no-color -out=tfplan
+
       - name: apply
-        working-directory: environments/${{ matrix.env }}
-        run: terraform apply -auto-approve -no-color
+        working-directory: environments/${{ inputs.environment }}
+        run: terraform apply -input=false -no-color tfplan
