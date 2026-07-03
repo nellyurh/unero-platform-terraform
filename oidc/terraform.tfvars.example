@@ -1,0 +1,11 @@
+# Apply once per account with that account's credentials. No account IDs are committed.
+environment      = "dev"
+region           = "af-south-1"
+github_org       = "nellyurh"
+github_repo      = "unero-platform-terraform"
+# State backend the roles must reach (same account as the state bucket for this env):
+state_bucket_arn = "arn:aws:s3:::unero-terraform-state"
+lock_table_arn   = "arn:aws:dynamodb:af-south-1:ACCOUNT_ID:table/unero-terraform-locks"
+# In production, prefer a scoped apply policy + boundary over AdministratorAccess:
+# apply_policy_arns              = ["arn:aws:iam::aws:policy/PowerUserAccess", <iam-scoped-policy-arn>]
+# apply_permissions_boundary_arn = "arn:aws:iam::ACCOUNT_ID:policy/unero-tf-boundary"
