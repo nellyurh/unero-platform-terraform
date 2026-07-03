@@ -1,8 +1,9 @@
 name: terraform-apply
 
-# Apply runs only on push to main (post-merge). Each environment is a GitHub Environment;
-# production/staging require reviewers (configure in repo Settings -> Environments), which
-# gates BOTH the workflow and the OIDC assume (apply role trusts environment:<env>).
+# Single-account model: one AWS account, one AWS_ACCOUNT_ID secret. Environment separation
+# is enforced by per-env state keys, per-env resources, and — for staging/production — the
+# per-env apply role whose OIDC trust requires the job to run inside that protected GitHub
+# Environment (approval gate == IAM gate).
 on:
   push:
     branches: [main]
@@ -23,19 +24,13 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        include:
-          - env: dev
-            account_secret: DEV_ACCOUNT_ID
-          - env: staging
-            account_secret: STAGING_ACCOUNT_ID
-          - env: production
-            account_secret: PRODUCTION_ACCOUNT_ID
-    environment: ${{ matrix.env }}   # approvals enforced here for staging/production
+        env: [dev, staging, production]
+    environment: ${{ matrix.env }}   # reviewers required on staging/production
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets[matrix.account_secret] }}:role/unero-${{ matrix.env }}-terraform
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/unero-${{ matrix.env }}-terraform
           aws-region: af-south-1
       - uses: hashicorp/setup-terraform@v3
         with:

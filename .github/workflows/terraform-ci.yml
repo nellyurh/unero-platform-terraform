@@ -53,7 +53,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.DEV_ACCOUNT_ID }}:role/unero-dev-terraform-plan
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/unero-terraform-plan
           aws-region: af-south-1
       - uses: hashicorp/setup-terraform@v3
         with:
