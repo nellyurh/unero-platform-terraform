@@ -101,7 +101,9 @@ data "aws_iam_policy_document" "service_deploy" {
     effect = "Allow"
     actions = [
       "ec2:DescribeSecurityGroups", "ec2:DescribeSubnets", "ec2:DescribeVpcs",
-      "ec2:DescribeNetworkInterfaces", "ec2:CreateSecurityGroup", "ec2:DeleteSecurityGroup",
+      "ec2:DescribeNetworkInterfaces", "ec2:DescribeInternetGateways",
+      "ec2:DescribeAvailabilityZones", "ec2:DescribeAccountAttributes", "ec2:DescribeTags",
+      "ec2:CreateSecurityGroup", "ec2:DeleteSecurityGroup",
       "ec2:AuthorizeSecurityGroupIngress", "ec2:AuthorizeSecurityGroupEgress",
       "ec2:RevokeSecurityGroupIngress", "ec2:RevokeSecurityGroupEgress", "ec2:CreateTags",
     ]
