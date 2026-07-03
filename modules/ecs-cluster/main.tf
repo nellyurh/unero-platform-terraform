@@ -47,6 +47,7 @@ resource "aws_security_group" "app" {
   description = "App tier: ECS tasks. Egress open; ingress from ALB only."
   vpc_id      = var.vpc_id
   egress {
+    description = "Outbound to AWS APIs, Aurora, Redis, and NAT (via route table); ingress from ALB only"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"

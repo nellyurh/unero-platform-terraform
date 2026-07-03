@@ -1,4 +1,4 @@
-# dev environment: instantiates the shared substrate from the modules, wiring in the
+# staging environment: instantiates the shared substrate from the modules, wiring in the
 # org-wide CMKs published by baseline/ (read via remote state).
 data "terraform_remote_state" "baseline" {
   backend = "s3"
@@ -21,7 +21,7 @@ resource "aws_cloudwatch_log_group" "flow" {
   tags              = local.tags
 }
 resource "aws_iam_role" "flow" {
-  name               = "unero-${var.environment}-vpc-flow"
+  name = "unero-${var.environment}-vpc-flow"
   assume_role_policy = jsonencode({
     Version   = "2012-10-17",
     Statement = [{ Effect = "Allow", Principal = { Service = "vpc-flow-logs.amazonaws.com" }, Action = "sts:AssumeRole" }]
@@ -29,8 +29,8 @@ resource "aws_iam_role" "flow" {
   tags = local.tags
 }
 resource "aws_iam_role_policy" "flow" {
-  name   = "write-flow-logs"
-  role   = aws_iam_role.flow.id
+  name = "write-flow-logs"
+  role = aws_iam_role.flow.id
   policy = jsonencode({
     Version   = "2012-10-17",
     Statement = [{ Effect = "Allow", Action = ["logs:CreateLogStream", "logs:PutLogEvents"], Resource = "${aws_cloudwatch_log_group.flow.arn}:*" }]

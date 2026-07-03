@@ -15,12 +15,12 @@ module "iam" {
 }
 
 module "queue" {
-  source                = "../sqs-queue"
-  for_each              = toset(var.queues)
-  name                  = "unero-${var.environment}-${var.service_name}-${each.value}"
-  kms_key_id            = var.sqs_kms_key_arn
-  alarm_sns_topic_arns  = var.alarm_sns_topic_arns
-  tags                  = var.tags
+  source               = "../sqs-queue"
+  for_each             = toset(var.queues)
+  name                 = "unero-${var.environment}-${var.service_name}-${each.value}"
+  kms_key_id           = var.sqs_kms_key_arn
+  alarm_sns_topic_arns = var.alarm_sns_topic_arns
+  tags                 = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "service" {
@@ -53,7 +53,7 @@ resource "aws_cloudwatch_dashboard" "service" {
   dashboard_body = jsonencode({
     widgets = [
       {
-        type = "text", x = 0, y = 0, width = 24, height = 1,
+        type       = "text", x = 0, y = 0, width = 24, height = 1,
         properties = { markdown = "# ${var.service_name} (${var.environment}) — golden signals" }
       },
       {

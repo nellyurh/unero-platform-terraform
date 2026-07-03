@@ -20,6 +20,7 @@ resource "aws_security_group" "this" {
     security_groups = var.app_security_group_ids
   }
   egress {
+    description = "Outbound to AWS APIs (RDS-managed operations); no inbound path from data tier"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -56,12 +57,12 @@ resource "aws_rds_cluster" "this" {
 }
 
 resource "aws_rds_cluster_instance" "this" {
-  count                = var.instance_count
-  identifier           = "unero-${var.environment}-${count.index}"
-  cluster_identifier   = aws_rds_cluster.this.id
-  instance_class       = "db.serverless"
-  engine               = aws_rds_cluster.this.engine
-  engine_version       = aws_rds_cluster.this.engine_version
+  count                        = var.instance_count
+  identifier                   = "unero-${var.environment}-${count.index}"
+  cluster_identifier           = aws_rds_cluster.this.id
+  instance_class               = "db.serverless"
+  engine                       = aws_rds_cluster.this.engine
+  engine_version               = aws_rds_cluster.this.engine_version
   performance_insights_enabled = true
-  tags                 = var.tags
+  tags                         = var.tags
 }

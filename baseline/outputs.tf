@@ -10,3 +10,6 @@ output "kms_logs_key_arn" {
 output "state_bucket" {
   value = aws_s3_bucket.state.id
 }
+output "state_replica_bucket" {
+  value = aws_s3_bucket.state_replica.id
+}
