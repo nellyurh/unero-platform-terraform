@@ -96,12 +96,19 @@ data "aws_iam_policy_document" "service_deploy" {
     actions   = ["elasticloadbalancing:*"]
     resources = ["*"]
   }
+  # Terraform's refresh phase reads constantly; enumerating individual Describe APIs is
+  # maintenance debt (ARB 2026-07-03). Read plane is broad; MUTATIONS stay explicit.
   statement {
-    sid    = "NetworkRead"
+    sid       = "NetworkDescribe"
+    effect    = "Allow"
+    actions   = ["ec2:Describe*", "elasticloadbalancing:Describe*"]
+    resources = ["*"]
+  }
+  statement {
+    sid    = "NetworkMutate"
     effect = "Allow"
     actions = [
-      "ec2:DescribeSecurityGroups", "ec2:DescribeSubnets", "ec2:DescribeVpcs",
-      "ec2:DescribeNetworkInterfaces", "ec2:CreateSecurityGroup", "ec2:DeleteSecurityGroup",
+      "ec2:CreateSecurityGroup", "ec2:DeleteSecurityGroup",
       "ec2:AuthorizeSecurityGroupIngress", "ec2:AuthorizeSecurityGroupEgress",
       "ec2:RevokeSecurityGroupIngress", "ec2:RevokeSecurityGroupEgress", "ec2:CreateTags",
     ]
