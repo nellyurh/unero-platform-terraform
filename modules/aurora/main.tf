@@ -20,6 +20,7 @@ resource "aws_security_group" "this" {
     security_groups = var.app_security_group_ids
   }
   egress {
+    description = "Outbound to AWS APIs (RDS-managed operations); no inbound path from data tier"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"

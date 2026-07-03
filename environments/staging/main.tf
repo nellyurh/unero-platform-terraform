@@ -1,4 +1,4 @@
-# dev environment: instantiates the shared substrate from the modules, wiring in the
+# staging environment: instantiates the shared substrate from the modules, wiring in the
 # org-wide CMKs published by baseline/ (read via remote state).
 data "terraform_remote_state" "baseline" {
   backend = "s3"
